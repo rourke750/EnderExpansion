@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -40,16 +41,20 @@ public EnderListener(LoadInventories lin){
 	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void Playerinteractevent(InventoryOpenEvent event){
-		InventoryHolder holder = event.getInventory().getHolder();
 		Player player= (Player) event.getPlayer();
 		if (event.getInventory().getType()== InventoryType.ENDER_CHEST){
 			event.setCancelled(true);
-			Location loc;
-			loc = ((Block)holder).getLocation();
+			Block block = player.getTargetBlock(null, 5);
+			Location loc= block.getLocation();
 			Inventory inv=li.getInventory(loc);
+			if (inv==null){
+				player.sendMessage(ChatColor.RED+"Please replace your Ender Chest.");
+				return;
+			}
 			li.setBlock(player, loc);
 			player.openInventory(inv);
 			player.updateInventory();
+			event.setCancelled(true);
 		}
 	}
 	@SuppressWarnings("deprecation")
@@ -100,6 +105,9 @@ public EnderListener(LoadInventories lin){
 		Material mat=event.getBlock().getType();
 		if (mat==Material.ENDER_CHEST){
 			Location loc= event.getBlock().getLocation();
+			if (li.getInventory(loc)==null){
+				return;
+			}
 			li.deleteInventory(loc);
 		}
 	}
