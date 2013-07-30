@@ -15,11 +15,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Enderplugin extends JavaPlugin{
 	private EnderListener el;
 	public BufferedWriter writer;
-	public File file;
+	private File file;
 	private SaveManager sm;
 	public void onEnable(){
 		LoadInventories li= new LoadInventories();
-		SaveManager sm= new SaveManager(li);
+		sm= new SaveManager(li);
 		el= new EnderListener(li);
 		String dir = this.getDataFolder() + File.separator + "Inventories" + File.separator; // creates the directory
 		new File(dir).mkdirs();

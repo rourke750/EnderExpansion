@@ -164,15 +164,15 @@ public class SaveManager {
                 else if(itemAttribute[0].equals("l") && createdItemStack){
                 	ItemMeta im=is.getItemMeta();
                 	String[] split=itemAttribute[1].split("9ghs");
-                	List<String> name= new ArrayList<String>();
+                	StringBuilder name= new StringBuilder();
                 	int z=0;
                 	for (String x: split){
                 		z++;
                 		if (split.length==z){
-                			name.add(x);
+                			name.append(x);
                 		}
                 		else{
-                			name.add(x+" ");
+                			name.append(x+" ");
                 		}
                     	}
                 	String newname=name.toString();
