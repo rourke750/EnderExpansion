@@ -32,15 +32,15 @@ public EnderListener(LoadInventories lin){
 	li=lin;
 }
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void PlayerplaceEnderChest(BlockPlaceEvent event){
-		if (event.getBlock().getType()==Material.ENDER_CHEST){
-			Location loc= event.getBlock().getLocation();
+	public void PlayerplaceEnderChest(BlockPlaceEvent event){  // On Enderchest placement it creates an inventory
+		if (event.getBlock().getType()==Material.ENDER_CHEST){ // for that block.
+			Location loc= event.getBlock().getLocation();      // would be nice if bukkit made sense.
 			li.createInventory(loc);
 		}
 	}
 	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void Playerinteractevent(InventoryOpenEvent event){
+	public void Playerinteractevent(InventoryOpenEvent event){  
 		Player player= (Player) event.getPlayer();
 		if (event.getInventory().getType()== InventoryType.ENDER_CHEST){
 			event.setCancelled(true);
@@ -48,13 +48,13 @@ public EnderListener(LoadInventories lin){
 			Location loc= block.getLocation();
 			Inventory inv=li.getInventory(loc);
 			if (inv==null){
-				player.sendMessage(ChatColor.RED+"Please replace your Ender Chest.");
+				player.sendMessage(ChatColor.RED+"Please replace your Ender Chest."); // for preexisting ender chests.
 				return;
 			}
-			li.setBlock(player, loc);
+			li.setBlock(player, loc); // Allows me to find the block in certain methods that dont allow me.
 			player.openInventory(inv);
-			player.updateInventory();
-			event.setCancelled(true);
+			player.updateInventory();  // refreshes player inventory.
+			event.setCancelled(true); // cancels the opening of the standard enderchests so my version can open.
 		}
 	}
 	@SuppressWarnings("deprecation")
@@ -70,7 +70,7 @@ public EnderListener(LoadInventories lin){
 			List<HumanEntity> viewers= event.getInventory().getViewers();
 			for (HumanEntity pl:viewers){
 				if (pl instanceof Player){
-					((Player) pl).updateInventory();
+					((Player) pl).updateInventory(); //updates everyones inventory that is looking in the enderchest.
 				}
 			}
 		}
@@ -88,7 +88,7 @@ public EnderListener(LoadInventories lin){
 			List<HumanEntity> viewers= event.getInventory().getViewers();
 			for (HumanEntity pl:viewers){
 				if (pl instanceof Player){
-					((Player) pl).updateInventory();
+					((Player) pl).updateInventory(); //updates everyones inventory that is looking in the enderchest.
 				}
 			}
 		}
@@ -97,7 +97,7 @@ public EnderListener(LoadInventories lin){
 	public void PlayercloseInventory(InventoryCloseEvent event){
 		Player player= (Player) event.getPlayer();
 		if (li.getBlock(player)!=null){
-			li.removePlayer(player);
+			li.removePlayer(player); // After they close the inventory it removes them from the list.
 		}
 	}
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -106,9 +106,9 @@ public EnderListener(LoadInventories lin){
 		if (mat==Material.ENDER_CHEST){
 			Location loc= event.getBlock().getLocation();
 			if (li.getInventory(loc)==null){
-				return;
+				return; // for preexisting enderchests.
 			}
-			li.deleteInventory(loc);
+			li.deleteInventory(loc); // Removes the inventory and drops contents onto the floor.
 		}
 	}
 }

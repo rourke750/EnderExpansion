@@ -26,7 +26,7 @@ public class SaveManager {
 	public SaveManager(LoadInventories load){
 		li=load;
 	}
-
+	// Loads on start
 	public void load(File file) throws IOException {
 		FileInputStream fis = new FileInputStream(file);
 		BufferedReader br = new BufferedReader(new InputStreamReader(fis));
@@ -40,6 +40,7 @@ public class SaveManager {
 		}
 		fis.close();
 	}
+	// Saves to file
 	public void save(File file) throws IOException {
 		FileOutputStream fos = new FileOutputStream(file);
 		BufferedWriter br = new BufferedWriter(new OutputStreamWriter(fos));
@@ -61,7 +62,7 @@ public class SaveManager {
 		fos.close();
 	}
 	
-	// Everything below credit goes to Phil2812.
+	// Everything below credit goes to Phil2812 except lore addition.
 	// http://forums.bukkit.org/threads/serialize-inventory-to-single-string-and-vice-versa.92094/
 	// Need support for Lore and possible prisonpearl if we decide to do that.
 	public static String InventoryToString (Inventory invInventory)
@@ -98,12 +99,19 @@ public class SaveManager {
                     }
                 }
                 ItemMeta islore=is.getItemMeta();
-                if (islore.hasDisplayName()==true){
+                if (islore.hasDisplayName()){
                 	String itemname= islore.getDisplayName();
                 	String[] split=itemname.split(" ");
                 	serializedItemStack+=":l@";
+                	int z=0;
                 	for (String x: split){
-                		serializedItemStack+=x+"_";
+                		z++;
+                		if (z==split.length){
+                			serializedItemStack+=x;
+                		}
+                		else{
+                		serializedItemStack+=x+"9ghs";
+                		}
                 	}
                 }
                
@@ -155,15 +163,27 @@ public class SaveManager {
                 }
                 else if(itemAttribute[0].equals("l") && createdItemStack){
                 	ItemMeta im=is.getItemMeta();
-                	String[] split=itemAttribute[1].split("_");
+                	String[] split=itemAttribute[1].split("9ghs");
                 	List<String> name= new ArrayList<String>();
+                	int z=0;
                 	for (String x: split){
+                		z++;
+                		if (split.length==z){
+                			name.add(x);
+                		}
+                		else{
                 			name.add(x+" ");
+                		}
                     	}
-                	im.setDisplayName(name.toString());
+                	String newname=name.toString();
+                	newname = newname.replace("[", ""); // These three lines are not a good fix and need to be changed.
+                	newname = newname.replaceAll(",", "");
+                	newname = newname.replace("]", "");
+                	im.setDisplayName(newname);
                 	is.setItemMeta(im);
                 }
             }
+            
             deserializedInventory.setItem(stackPosition, is);
         }
        
