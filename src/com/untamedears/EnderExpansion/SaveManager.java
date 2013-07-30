@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -17,6 +19,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class SaveManager {
 	private LoadInventories li;
@@ -94,6 +97,15 @@ public class SaveManager {
                         serializedItemStack += ":e@" + ench.getKey().getId() + "@" + ench.getValue();
                     }
                 }
+                ItemMeta islore=is.getItemMeta();
+                if (islore.hasDisplayName()==true){
+                	String itemname= islore.getDisplayName();
+                	String[] split=itemname.split(" ");
+                	serializedItemStack+=":l@";
+                	for (String x: split){
+                		serializedItemStack+=x+"_";
+                	}
+                }
                
                 serialization += i + "#" + serializedItemStack + ";";
             }
@@ -140,6 +152,16 @@ public class SaveManager {
                 else if (itemAttribute[0].equals("e") && createdItemStack)
                 {
                     is.addEnchantment(Enchantment.getById(Integer.valueOf(itemAttribute[1])), Integer.valueOf(itemAttribute[2]));
+                }
+                else if(itemAttribute[0].equals("l") && createdItemStack){
+                	ItemMeta im=is.getItemMeta();
+                	String[] split=itemAttribute[1].split("_");
+                	List<String> name= new ArrayList<String>();
+                	for (String x: split){
+                			name.add(x+" ");
+                    	}
+                	im.setDisplayName(name.toString());
+                	is.setItemMeta(im);
                 }
             }
             deserializedInventory.setItem(stackPosition, is);
