@@ -9,14 +9,26 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.minecraft.server.v1_5_R3.IInventory;
+import net.minecraft.server.v1_5_R3.NBTBase;
+import net.minecraft.server.v1_5_R3.NBTCompressedStreamTools;
+import net.minecraft.server.v1_5_R3.NBTTagCompound;
+import net.minecraft.server.v1_5_R3.NBTBase;
+import net.minecraft.server.v1_5_R3.NBTTagList;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_5_R3.inventory.CraftInventory;
+import org.bukkit.craftbukkit.v1_5_R3.inventory.CraftInventoryCustom;
+import org.bukkit.craftbukkit.v1_5_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -26,167 +38,123 @@ public class SaveManager {
 	public SaveManager(LoadInventories load){
 		li=load;
 	}
-	// Loads on start
-	public void load(File file) throws IOException {
-		FileInputStream fis = new FileInputStream(file);
-		BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-		String line;
-		while ((line = br.readLine()) != null) {
-			String parts[] = line.split(" ");
-			Location loc = new Location(Bukkit.getWorld(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
-			String inv = parts[4];
-			Inventory in=StringToInventory(inv);
-			li.addInventory(loc, in);
-		}
-		fis.close();
-	}
-	// Saves to file
-	public void save(File file) throws IOException {
-		FileOutputStream fos = new FileOutputStream(file);
-		BufferedWriter br = new BufferedWriter(new OutputStreamWriter(fos));
-		for (Location loc : li.getListLocation()) {
-			Inventory inv =li.getInventory(loc);
-			br.append(loc.getWorld().getName());
-			br.append(" ");
-			br.append(String.valueOf(loc.getBlockX()));
-			br.append(" ");
-			br.append(String.valueOf(loc.getBlockY()));
-			br.append(" ");
-			br.append(String.valueOf(loc.getBlockZ()));
-			br.append(" ");
-			br.append(InventoryToString(li.getInventory(loc)));
-			br.append("\n");
+	  private Map<Location, Info> ptoinfo_ = new HashMap<Location, Info>();
+	  private Map<IInventory, Info> invtoinfo_ = new HashMap<IInventory, Info>();
+	  private File inventoryDir_ = null;
+	  
+	public class Info {
+	    public Info(Location lo, Inventory i) {
+	      loc = lo;
+	      inv = i;
+	      iinv = ((CraftInventory)i).getInventory();;
+	    }
+	    public Location loc;
+	    public Inventory inv;
+	    public IInventory iinv;
+	  }
 
-		}
-		br.flush();
-		fos.close();
-	}
-	
-	// Everything below credit goes to Phil2812 except lore addition.
-	// http://forums.bukkit.org/threads/serialize-inventory-to-single-string-and-vice-versa.92094/
-	// Need support for Lore and possible prisonpearl if we decide to do that.
-	public static String InventoryToString (Inventory invInventory)
-    {
-        String serialization = invInventory.getSize() + ";";
-        for (int i = 0; i < invInventory.getSize(); i++)
-        {
-            ItemStack is = invInventory.getItem(i);
-            if (is != null)
-            {
-                String serializedItemStack = new String();
-               
-                String isType = String.valueOf(is.getType().getId());
-                serializedItemStack += "t@" + isType;
-               
-                if (is.getDurability() != 0)
-                {
-                    String isDurability = String.valueOf(is.getDurability());
-                    serializedItemStack += ":d@" + isDurability;
-                }
-               
-                if (is.getAmount() != 1)
-                {
-                    String isAmount = String.valueOf(is.getAmount());
-                    serializedItemStack += ":a@" + isAmount;
-                }
-               
-                Map<Enchantment,Integer> isEnch = is.getEnchantments();
-                if (isEnch.size() > 0)
-                {
-                    for (Entry<Enchantment,Integer> ench : isEnch.entrySet())
-                    {
-                        serializedItemStack += ":e@" + ench.getKey().getId() + "@" + ench.getValue();
-                    }
-                }
-                ItemMeta islore=is.getItemMeta();
-                if (islore.hasDisplayName()){
-                	String itemname= islore.getDisplayName();
-                	String[] split=itemname.split(" ");
-                	serializedItemStack+=":l@";
-                	int z=0;
-                	for (String x: split){
-                		z++;
-                		if (z==split.length){
-                			serializedItemStack+=x;
-                		}
-                		else{
-                		serializedItemStack+=x+"9ghs";
-                		}
-                	}
-                }
-               
-                serialization += i + "#" + serializedItemStack + ";";
-            }
-        }
-        return serialization;
-    }
-   
-    public static Inventory StringToInventory (String invString)
-    {
-        String[] serializedBlocks = invString.split(";");
-        String invInfo = serializedBlocks[0];
-        Inventory deserializedInventory = Bukkit.getServer().createInventory(null, Integer.valueOf(invInfo));
-       
-        for (int i = 1; i < serializedBlocks.length; i++)
-        {
-            String[] serializedBlock = serializedBlocks[i].split("#");
-            int stackPosition = Integer.valueOf(serializedBlock[0]);
-           
-            if (stackPosition >= deserializedInventory.getSize())
-            {
-                continue;
-            }
-           
-            ItemStack is = null;
-            Boolean createdItemStack = false;
-           
-            String[] serializedItemStack = serializedBlock[1].split(":");
-            for (String itemInfo : serializedItemStack)
-            {
-                String[] itemAttribute = itemInfo.split("@");
-                if (itemAttribute[0].equals("t"))
-                {
-                    is = new ItemStack(Material.getMaterial(Integer.valueOf(itemAttribute[1])));
-                    createdItemStack = true;
-                }
-                else if (itemAttribute[0].equals("d") && createdItemStack)
-                {
-                    is.setDurability(Short.valueOf(itemAttribute[1]));
-                }
-                else if (itemAttribute[0].equals("a") && createdItemStack)
-                {
-                    is.setAmount(Integer.valueOf(itemAttribute[1]));
-                }
-                else if (itemAttribute[0].equals("e") && createdItemStack)
-                {
-                    is.addEnchantment(Enchantment.getById(Integer.valueOf(itemAttribute[1])), Integer.valueOf(itemAttribute[2]));
-                }
-                else if(itemAttribute[0].equals("l") && createdItemStack){
-                	ItemMeta im=is.getItemMeta();
-                	String[] split=itemAttribute[1].split("9ghs");
-                	StringBuilder name= new StringBuilder();
-                	int z=0;
-                	for (String x: split){
-                		z++;
-                		if (split.length==z){
-                			name.append(x);
-                		}
-                		else{
-                			name.append(x+" ");
-                		}
-                    	}
-                	String newname=name.toString();
-                	newname = newname.replace("[", ""); // These three lines are not a good fix and need to be changed.
-                	newname = newname.replaceAll(",", "");
-                	newname = newname.replace("]", "");
-                	im.setDisplayName(newname);
-                	is.setItemMeta(im);
-                }
-            }
-            
-            deserializedInventory.setItem(stackPosition, is);
-        }
-       
-        return deserializedInventory;
-    }
+	  public Inventory loadInventory(Location loc) {
+	    File inventorySave = new File(inventoryDir_, String.format("inv_%s.dat", loc.toString()));
+	    if (!inventorySave.exists()) {
+	      return null;
+	    }
+	    NBTTagCompound nbtInventory = null;
+	    try {
+	      FileInputStream fis = new FileInputStream(inventorySave);
+	      nbtInventory = NBTCompressedStreamTools.a(fis);
+	      fis.close();
+	    } catch (Exception e) {
+	      System.out.println("loadInventory Exception: " + e.toString());
+	      return null;
+	    }
+	    
+	    if (!nbtInventory.getString("Location").equals(loc.toString())) {
+	      return null;
+	    }
+	    Inventory inv = Bukkit.createInventory(null, 36);
+	    NBTTagList nbtList = nbtInventory.getList("Items");
+	    for (int i = 0; i < nbtList.size(); ++i) {
+	      NBTTagCompound itemTag = (NBTTagCompound)nbtList.get(i);
+	      int slot = itemTag.getInt("Slot");
+	      net.minecraft.server.v1_5_R3.ItemStack nmsis =
+	          net.minecraft.server.v1_5_R3.ItemStack.createStack(itemTag);
+	      if (nmsis == null) {
+	        continue;
+	      }
+	      inv.setItem(slot, CraftItemStack.asBukkitCopy(nmsis));
+	    }
+	    return inv;
+	  }
+	  
+	public void saveInventory(Location loc, Info info) {
+	    Inventory inv = info.inv;
+	    if (!(inv instanceof CraftInventoryCustom)) {
+	      return;
+	    }
+	    File inventorySave = new File(inventoryDir_, String.format("inv_%s.dat", loc));
+	    if (inventorySave.exists()) {
+	      inventorySave.delete();
+	    }
+	    CraftInventoryCustom cinv = (CraftInventoryCustom)inv;
+	    NBTTagCompound nbtInventory = new NBTTagCompound("Inventory");
+	    NBTTagList nbtList = new NBTTagList("Items");
+	    nbtInventory.set("Items", nbtList);
+	    nbtInventory.setString("Location", loc.toString());
+	    ItemStack[] items = cinv.getContents();
+	    for (int slot = 0; slot < items.length; ++slot) {
+	      ItemStack item = items[slot];
+	      if (item == null) {
+	        continue;
+	      }
+	      net.minecraft.server.v1_5_R3.ItemStack nmsis = CraftItemStack.asNMSCopy(item);
+	      NBTTagCompound serializedItem = new NBTTagCompound();
+	      nmsis.save(serializedItem);
+	      serializedItem.setInt("Slot", slot);
+	      nbtList.add(serializedItem);
+	    }
+	    try {
+	      FileOutputStream fos = new FileOutputStream(inventorySave);
+	      NBTCompressedStreamTools.a(nbtInventory, fos);
+	      fos.close();
+	    } catch (Exception e) {
+	      System.out.println("saveInventory Exception: " + e.toString());
+	      return;
+	    }
+	  }
+
+	  public Info getInfo(Location loc) {
+	    Info info = ptoinfo_.get(loc);
+	    boolean newinfo = false;
+	    if (info == null) {
+	      Inventory inv = loadInventory(loc);
+	      if (inv != null) {
+	        newinfo = true;
+	        info = new Info(loc, inv);
+	      }
+	    }
+	    if (info == null) {
+	      Inventory inv = Bukkit.createInventory(null, 36);
+	      if (inv != null) {
+	        newinfo = true;
+	        info = new Info(loc, inv);
+	      }
+	    }
+	    if (newinfo) {
+	      ptoinfo_.put(loc, info);
+	      invtoinfo_.put(info.iinv, info);
+	    }
+	    return info;
+	  }
+	  public void setFile(File file){
+		  inventoryDir_=file;
+	  }
+	  public void deleteInventory(Location loc){
+		  File inventorySave = new File(inventoryDir_, String.format("inv_%s.dat", loc));
+		    if (inventorySave.exists()) {
+		      inventorySave.delete();
+		      ptoinfo_.remove(loc);
+		    }
+		    
+	  }
+
 }
