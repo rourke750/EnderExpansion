@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,9 +34,11 @@ import com.untamedears.EnderExpansion.SaveManager.Info;
 public class EnderListener implements Listener{
 	private LoadInventories li;
 	private SaveManager sm;
-public EnderListener(LoadInventories lin, SaveManager save){
+	private Enderplugin plugin;
+public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 	li=lin;
 	sm=save;
+	plugin=ep;
 }
 	//@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	//public void PlayerplaceEnderChest(BlockPlaceEvent event){  // On Enderchest placement it creates an inventory
@@ -70,6 +73,9 @@ public EnderListener(LoadInventories lin, SaveManager save){
 			Inventory inv=event.getInventory();
 			Player player= (Player) event.getWhoClicked();
 			List<HumanEntity> viewers= event.getInventory().getViewers();
+			Location loc=li.getBlock(player);
+			Info info=sm.getInfo(loc);
+			sm.saveInventory(info.loc, info);
 			for (HumanEntity pl:viewers){
 				if (pl instanceof Player){
 					((Player) pl).updateInventory(); //updates everyones inventory that is looking in the enderchest.
@@ -84,6 +90,9 @@ public EnderListener(LoadInventories lin, SaveManager save){
 			List<HumanEntity> viewers= event.getInventory().getViewers();
 			for (HumanEntity pl:viewers){
 				if (pl instanceof Player){
+					Location loc=li.getBlock(((Player) pl));
+					Info info=sm.getInfo(loc);
+					sm.saveInventory(info.loc, info);
 					((Player) pl).updateInventory(); //updates everyones inventory that is looking in the enderchest.
 				}
 			}
@@ -94,6 +103,10 @@ public EnderListener(LoadInventories lin, SaveManager save){
 		Player player= (Player) event.getPlayer();
 		Location loc=li.getBlock(player);
 		if (loc!=null){
+			if (event.getViewers()==null){
+			player.getWorld().playSound(player.getLocation(), Sound.CHEST_CLOSE, 1.0F, 1.0F); 
+			player.sendBlockChange(loc, Material.ENDER_CHEST, (byte) 0);
+			}
 			Info info=sm.getInfo(loc);
 			li.removePlayer(player); // After they close the inventory it removes them from the list.
 			sm.saveInventory(info.loc, info);

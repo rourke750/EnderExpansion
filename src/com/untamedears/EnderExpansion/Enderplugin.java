@@ -8,8 +8,6 @@ import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.minecraft.server.v1_5_R3.NBTTagCompound;
-
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,7 +21,7 @@ public class Enderplugin extends JavaPlugin{
 	public void onEnable(){
 		LoadInventories li= new LoadInventories();
 		sm= new SaveManager(li);
-		el= new EnderListener(li, sm);
+		el= new EnderListener(li, sm, this);
 		createInventoryDir();
 		sm.setFile(file);
 		enableListener();

@@ -14,19 +14,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.minecraft.server.v1_5_R3.IInventory;
-import net.minecraft.server.v1_5_R3.NBTBase;
-import net.minecraft.server.v1_5_R3.NBTCompressedStreamTools;
-import net.minecraft.server.v1_5_R3.NBTTagCompound;
-import net.minecraft.server.v1_5_R3.NBTBase;
-import net.minecraft.server.v1_5_R3.NBTTagList;
+import net.minecraft.server.v1_6_R2.NBTBase;
+import net.minecraft.server.v1_6_R2.NBTCompressedStreamTools;
+import net.minecraft.server.v1_6_R2.NBTTagCompound;
+import net.minecraft.server.v1_6_R2.NBTBase;
+import net.minecraft.server.v1_6_R2.NBTTagList;
+import net.minecraft.server.v1_6_R2.IInventory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_5_R3.inventory.CraftInventory;
-import org.bukkit.craftbukkit.v1_5_R3.inventory.CraftInventoryCustom;
-import org.bukkit.craftbukkit.v1_5_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_6_R2.inventory.CraftInventory;
+import org.bukkit.craftbukkit.v1_6_R2.inventory.CraftInventoryCustom;
+import org.bukkit.craftbukkit.v1_6_R2.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -71,13 +71,13 @@ public class SaveManager {
 	    if (!nbtInventory.getString("Location").equals(loc.toString())) {
 	      return null;
 	    }
-	    Inventory inv = Bukkit.createInventory(null, 36);
+	    Inventory inv = Bukkit.createInventory(null, 27);
 	    NBTTagList nbtList = nbtInventory.getList("Items");
 	    for (int i = 0; i < nbtList.size(); ++i) {
 	      NBTTagCompound itemTag = (NBTTagCompound)nbtList.get(i);
 	      int slot = itemTag.getInt("Slot");
-	      net.minecraft.server.v1_5_R3.ItemStack nmsis =
-	          net.minecraft.server.v1_5_R3.ItemStack.createStack(itemTag);
+	      net.minecraft.server.v1_6_R2.ItemStack nmsis =
+	    		  net.minecraft.server.v1_6_R2.ItemStack.createStack(itemTag);
 	      if (nmsis == null) {
 	        continue;
 	      }
@@ -106,7 +106,7 @@ public class SaveManager {
 	      if (item == null) {
 	        continue;
 	      }
-	      net.minecraft.server.v1_5_R3.ItemStack nmsis = CraftItemStack.asNMSCopy(item);
+	      net.minecraft.server.v1_6_R2.ItemStack nmsis = CraftItemStack.asNMSCopy(item);
 	      NBTTagCompound serializedItem = new NBTTagCompound();
 	      nmsis.save(serializedItem);
 	      serializedItem.setInt("Slot", slot);
@@ -133,7 +133,7 @@ public class SaveManager {
 	      }
 	    }
 	    if (info == null) {
-	      Inventory inv = Bukkit.createInventory(null, 36);
+	      Inventory inv = Bukkit.createInventory(null, 27);
 	      if (inv != null) {
 	        newinfo = true;
 	        info = new Info(loc, inv);
