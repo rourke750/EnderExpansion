@@ -6,7 +6,11 @@ import java.util.Set;
 
 
 
+import net.minecraft.server.v1_6_R2.TileEntity;
+import net.minecraft.server.v1_6_R2.TileEntityEnderChest;
+
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_6_R2.CraftWorld;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,26 +44,15 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 	sm=save;
 	plugin=ep;
 }
-	//@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	//public void PlayerplaceEnderChest(BlockPlaceEvent event){  // On Enderchest placement it creates an inventory
-	//	if (event.getBlock().getType()==Material.ENDER_CHEST){ // for that block.
-		//	Location loc= event.getBlock().getLocation();      // would be nice if bukkit made sense.
-		//	li.createInventory(loc);
-	//	}
-//	}
+	
 	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void Playerinteractevent(InventoryOpenEvent event){
 		Player player= (Player) event.getPlayer();
 		if (event.getInventory().getType()== InventoryType.ENDER_CHEST){
-			event.setCancelled(true);
 			Block block = player.getTargetBlock(null, 5);
 			Location loc= block.getLocation();
 			Inventory inv=sm.getInfo(loc).inv;
-			if (inv==null){
-				player.sendMessage(ChatColor.RED+"Please replace your Ender Chest."); // for preexisting ender chests.
-				return;
-			}
 			li.setBlock(player, loc); // Allows me to find the block in certain methods that dont allow me.
 			player.openInventory(inv);
 			player.updateInventory();  // refreshes player inventory.
@@ -104,8 +97,11 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 		Location loc=li.getBlock(player);
 		if (loc!=null){
 			if (event.getViewers()==null){
+			TileEntity tileEntity = ((CraftWorld) loc.getWorld()).getHandle().getTileEntity(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 			player.getWorld().playSound(player.getLocation(), Sound.CHEST_CLOSE, 1.0F, 1.0F); 
-			player.sendBlockChange(loc, Material.ENDER_CHEST, (byte) 0);
+			if (tileEntity instanceof TileEntityEnderChest) {
+	            ((TileEntityEnderChest) tileEntity).b(); // .close()
+	        }
 			}
 			Info info=sm.getInfo(loc);
 			li.removePlayer(player); // After they close the inventory it removes them from the list.
@@ -121,7 +117,7 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 				return; // for preexisting enderchests.
 			}
 			Inventory inv=sm.getInfo(loc).inv;
-			for (int i=0;i<36;i++){
+			for (int i=0;i<27;i++){
 				if (inv.getItem(i)==null){
 				continue; // if an item spot is empty is skips trying to drop nothing and throwing an error.
 				}
