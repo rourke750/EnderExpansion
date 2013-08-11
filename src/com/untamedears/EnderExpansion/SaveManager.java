@@ -156,5 +156,10 @@ public class SaveManager {
 		    }
 		    
 	  }
+	  public void forceSave(){
+		  for (Info in:ptoinfo_.values()){
+			  saveInventory(in.loc, in);
+		  }
+	  }
 
 }

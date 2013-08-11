@@ -59,38 +59,7 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 			event.setCancelled(true); // cancels the opening of the standard enderchests so my version can open.
 		}
 	}
-	@SuppressWarnings("deprecation")
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void Playerinteractmoveevent(InventoryDragEvent event){
-		if (event.getInventory().getType()==InventoryType.ENDER_CHEST){
-			Inventory inv=event.getInventory();
-			Player player= (Player) event.getWhoClicked();
-			List<HumanEntity> viewers= event.getInventory().getViewers();
-			Location loc=li.getBlock(player);
-			Info info=sm.getInfo(loc);
-			sm.saveInventory(info.loc, info);
-			for (HumanEntity pl:viewers){
-				if (pl instanceof Player){
-					((Player) pl).updateInventory(); //updates everyones inventory that is looking in the enderchest.
-				}
-			}
-		}
-	}
-	@SuppressWarnings("deprecation")
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void PlayerClickEvent(InventoryClickEvent event){
-		if (event.getInventory().getType()==InventoryType.ENDER_CHEST){
-			List<HumanEntity> viewers= event.getInventory().getViewers();
-			for (HumanEntity pl:viewers){
-				if (pl instanceof Player){
-					Location loc=li.getBlock(((Player) pl));
-					Info info=sm.getInfo(loc);
-					sm.saveInventory(info.loc, info);
-					((Player) pl).updateInventory(); //updates everyones inventory that is looking in the enderchest.
-				}
-			}
-		}
-	}
+
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void PlayercloseInventory(InventoryCloseEvent event){
 		Player player= (Player) event.getPlayer();

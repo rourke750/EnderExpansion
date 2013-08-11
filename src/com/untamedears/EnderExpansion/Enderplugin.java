@@ -27,6 +27,7 @@ public class Enderplugin extends JavaPlugin{
 		enableListener();
 	}
 	public void onDisable(){
+		sm.forceSave();
 	}
 	private void enableListener() {
 		getServer().getPluginManager().registerEvents(el, this);
