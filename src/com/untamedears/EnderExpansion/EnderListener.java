@@ -44,19 +44,36 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 	sm=save;
 	plugin=ep;
 }
-	
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void InteractEvent(PlayerInteractEvent event){
+		if (event.getClickedBlock() instanceof EnderChest){
+			event.setCancelled(true);
+		}
+	}
 	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void Playerinteractevent(InventoryOpenEvent event){
 		Player player= (Player) event.getPlayer();
 		if (event.getInventory().getType()== InventoryType.ENDER_CHEST){
+			event.setCancelled(true); // cancels the opening of the standard enderchests so my version can open.
+			
 			Block block = player.getTargetBlock(null, 5);
-			Location loc= block.getLocation();
+			Location loc = block.getLocation();
+			Location height=loc.clone();
+			height.setY(height.getY()+1);
+			Material check= height.getBlock().getType();
+			if (!check.isTransparent()){
+				return;
+			}
+			TileEntity tileEntity = ((CraftWorld) loc.getWorld()).getHandle().getTileEntity(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+			player.getWorld().playSound(player.getLocation(), Sound.CHEST_OPEN, 1.0F, 1.0F); 
+			if (tileEntity instanceof TileEntityEnderChest) {
+	            ((TileEntityEnderChest) tileEntity).a(); 
+	        }
 			Inventory inv=sm.getInfo(loc).inv;
 			li.setBlock(player, loc); // Allows me to find the block in certain methods that dont allow me.
 			player.openInventory(inv);
 			player.updateInventory();  // refreshes player inventory.
-			event.setCancelled(true); // cancels the opening of the standard enderchests so my version can open.
 		}
 	}
 

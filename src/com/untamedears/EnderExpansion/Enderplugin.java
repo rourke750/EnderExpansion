@@ -9,14 +9,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.untamedears.EnderExpansion.SaveManager.Info;
 
 
 public class Enderplugin extends JavaPlugin{
 	private EnderListener el;
 	public BufferedWriter writer;
 	private File file;
-	private SaveManager sm;
+	private static SaveManager sm;
 	private File inventoryDir_ = null;
 	public void onEnable(){
 		LoadInventories li= new LoadInventories();
@@ -25,6 +29,7 @@ public class Enderplugin extends JavaPlugin{
 		createInventoryDir();
 		sm.setFile(file);
 		enableListener();
+		
 	}
 	public void onDisable(){
 		sm.forceSave();
@@ -43,4 +48,8 @@ public class Enderplugin extends JavaPlugin{
 		      inventoryDir_.mkdir();  
 		    }
 		  }
+	
+	public static Inventory getchestInventory(Location loc){
+		return sm.getInfo(loc).inv;
+	}
 }
