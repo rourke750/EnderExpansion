@@ -29,7 +29,9 @@ import org.bukkit.craftbukkit.v1_6_R2.inventory.CraftInventoryCustom;
 import org.bukkit.craftbukkit.v1_6_R2.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -71,7 +73,7 @@ public class SaveManager {
 	    if (!nbtInventory.getString("Location").equals(loc.toString())) {
 	      return null;
 	    }
-	    Inventory inv = Bukkit.createInventory(null, 27);
+	    Inventory inv = Bukkit.createInventory(null, InventoryType.CHEST);
 	    NBTTagList nbtList = nbtInventory.getList("Items");
 	    for (int i = 0; i < nbtList.size(); ++i) {
 	      NBTTagCompound itemTag = (NBTTagCompound)nbtList.get(i);
@@ -133,7 +135,7 @@ public class SaveManager {
 	      }
 	    }
 	    if (info == null) {
-	      Inventory inv = Bukkit.createInventory(null, 27);
+	      Inventory inv = Bukkit.createInventory(null, InventoryType.CHEST);
 	      if (inv != null) {
 	        newinfo = true;
 	        info = new Info(loc, inv);

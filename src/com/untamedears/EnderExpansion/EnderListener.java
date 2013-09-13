@@ -3,6 +3,7 @@ package com.untamedears.EnderExpansion;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 
@@ -48,6 +49,7 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 	public void InteractEvent(PlayerInteractEvent event){
 		if (event.getClickedBlock() instanceof EnderChest){
 			event.setCancelled(true);
+			
 		}
 	}
 	@SuppressWarnings("deprecation")
@@ -119,4 +121,5 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 			 sm.deleteInventory(loc);// Removes the inventory and drops contents onto the floor.
 		}
 	}
+	
 }
