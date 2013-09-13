@@ -75,6 +75,8 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 			case 156:
 			case 0:
 			case 130:
+			case 126:
+			case 44:
 				open = true;
 				break;
 			}
@@ -83,6 +85,7 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 			li.setBlock(player, loc); // Allows me to find the block in certain methods that dont allow me.
 			player.openInventory(inv);
 			player.updateInventory();  // refreshes player inventory.
+			li.addPlayerList(loc, player);
 			Bukkit.getScheduler().runTask(plugin, new Runnable(){
 				@Override
 				public void run(){
@@ -101,7 +104,6 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 		final Info info=sm.getInfo(loc);
 		if (info!=null){
 			List<HumanEntity> viewers= event.getInventory().getViewers();
-			System.out.print("Inventory Drag Event saved");
 			Bukkit.getScheduler().runTask(plugin, new Runnable(){
 				@Override
 				public void run(){
@@ -170,7 +172,8 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 	public void BlockBreakEvent(BlockBreakEvent event){
 		Material mat=event.getBlock().getType();
 		if (mat==Material.ENDER_CHEST){
-			Location loc= event.getBlock().getLocation();
+			final Location loc= event.getBlock().getLocation();
+			
 			if (sm.getInfo(loc)==null){
 				return; // for preexisting enderchests.
 			}
@@ -181,13 +184,19 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 				}
 				loc.getWorld().dropItemNaturally(loc, inv.getItem(i)); //drops items to where the chest was.
 				}
-				List<HumanEntity> player=inv.getViewers();
-				for (HumanEntity one: player){
-				((Player) one).closeInventory();
-				((Player) one).updateInventory(); // Closes the inventory of everyone looking at the chest.
+				List<Player> player= li.getPlayerList(loc);
+				for (Player one: player){
+				li.removePlayer(loc, one);
+				one.closeInventory();
+				one.updateInventory(); // Closes the inventory of everyone looking at the chest.
 				}
-				
-			 sm.deleteInventory(loc);// Removes the inventory and drops contents onto the floor.
+				Bukkit.getScheduler().runTask(plugin, new Runnable(){
+					@Override
+					public void run(){
+					sm.deleteInventory(loc);// Removes the inventory and drops contents onto the floor.
+					}
+				});
+			 
 		}
 	}
 
