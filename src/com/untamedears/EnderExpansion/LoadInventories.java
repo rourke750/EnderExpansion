@@ -38,6 +38,7 @@ public void addPlayerList(Location loc, Player player){
 }
 public void removePlayer(Location loc, Player player){
 	List<Player> pl= new ArrayList<Player>();
+	if (playerlist.get(loc)==null) return;
 	for (Player a: playerlist.get(loc)){
 		if (a==player) continue;
 		pl.add(a);

@@ -52,4 +52,7 @@ public class Enderplugin extends JavaPlugin{
 	public static Inventory getchestInventory(Location loc){
 		return sm.getInfo(loc).inv;
 	}
+	public static Location getchestInventory(Inventory inv){
+		return sm.getInfo(inv).loc;
+	}
 }
