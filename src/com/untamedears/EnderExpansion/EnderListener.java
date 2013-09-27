@@ -172,7 +172,6 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 			final Location loc= event.getBlock().getLocation();
 			
 			if (sm.isInventory(loc)==false){
-				System.out.print("finally?");
 				return; // for preexisting enderchests.
 			}
 			Inventory inv=sm.getInfo(loc).inv;
@@ -191,6 +190,7 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 				li.removePlayer(loc, one);
 				one.closeInventory();
 				one.updateInventory(); // Closes the inventory of everyone looking at the chest.
+				
 				}
 				
 				Bukkit.getScheduler().runTask(plugin, new Runnable(){
