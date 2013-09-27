@@ -1,5 +1,6 @@
 package com.untamedears.EnderExpansion;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,10 +54,6 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 			final Location loc= block.getLocation();
 			Location check = block.getLocation().clone();
 			Inventory inv=sm.getInfo(loc).inv;
-			if (inv==null){
-				player.sendMessage(ChatColor.RED+"Please replace your Ender Chest."); // for preexisting ender chests.
-				return;
-			}
 			check.setY(check.getY()+1);
 			int id;
 			id= check.getBlock().getTypeId();
@@ -95,58 +92,58 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 			}
 		}
 	}
-	@SuppressWarnings("deprecation")
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void Playerinteractmoveevent(InventoryDragEvent event){
-		Player player = (Player) event.getWhoClicked();
-		final Location loc=li.getBlock(player);
-		if (loc==null) return;
-		final Info info=sm.getInfo(loc);
-		if (info!=null){
-			List<HumanEntity> viewers= event.getInventory().getViewers();
-			Bukkit.getScheduler().runTask(plugin, new Runnable(){
-				@Override
-				public void run(){
-				sm.saveInventory(loc, info);
-				}
-			});
-			for (HumanEntity pl:viewers){
-					if ((Player) pl==event.getWhoClicked()) continue;
-					((Player) pl).updateInventory(); //updates everyones inventory that is looking in the enderchest.
-				
-			}
-		}
-		else{
-			return;
-		}
-	}
-	@SuppressWarnings("deprecation")
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void PlayerClickEvent(InventoryClickEvent event){
-		Player player = (Player) event.getWhoClicked();
-		final Location loc=li.getBlock(player);
-		if (loc==null) return;
-		final Info info=sm.getInfo(loc);
-		if (info!=null){
-			List<HumanEntity> viewers= event.getInventory().getViewers();
-			Bukkit.getScheduler().runTask(plugin, new Runnable(){
-				@Override
-				public void run(){
-				sm.saveInventory(loc, info);
-				}
-			});
-			for (HumanEntity pl:viewers){
-				if (pl instanceof Player){
-					if ((Player) pl==event.getWhoClicked()) continue;
-					((Player) pl).updateInventory(); //updates everyones inventory that is looking in the enderchest.
-				}
-			}
-		}
-		else{
-			return;
-		}
+//	@SuppressWarnings("deprecation")
+//	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+//	public void Playerinteractmoveevent(InventoryDragEvent event){
+//		Player player = (Player) event.getWhoClicked();
+//		final Location loc=li.getBlock(player);
+//		if (loc==null) return;
+//		final Info info=sm.getInfo(loc);
+//		if (info!=null){
+//			List<HumanEntity> viewers= event.getInventory().getViewers();
+//			Bukkit.getScheduler().runTask(plugin, new Runnable(){
+//				@Override
+//				public void run(){
+//				sm.saveInventory(loc, info);
+//				}
+//			});
+//			for (HumanEntity pl:viewers){
+//					if ((Player) pl==event.getWhoClicked()) continue;
+//					((Player) pl).updateInventory(); //updates everyones inventory that is looking in the enderchest.
+//				
+//			}
+//		}
+//		else{
+//			return;
+//		}
+//	}
+//	@SuppressWarnings("deprecation")
+//	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+//	public void PlayerClickEvent(InventoryClickEvent event){
+//		Player player = (Player) event.getWhoClicked();
+//		final Location loc=li.getBlock(player);
+//		if (loc==null) return;
+//		final Info info=sm.getInfo(loc);
+//		if (info!=null){
+//			List<HumanEntity> viewers= event.getInventory().getViewers();
+//			Bukkit.getScheduler().runTask(plugin, new Runnable(){
+//				@Override
+//				public void run(){
+//				sm.saveInventory(loc, info);
+//				}
+//			});
+//			for (HumanEntity pl:viewers){
+//				if (pl instanceof Player){
+//					if ((Player) pl==event.getWhoClicked()) continue;
+//					((Player) pl).updateInventory(); //updates everyones inventory that is looking in the enderchest.
+//				}
+//			}
+//		}
+//		else{
+//			return;
+//		}
 	
-	}
+//	}
 
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -174,7 +171,8 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 		if (mat==Material.ENDER_CHEST){
 			final Location loc= event.getBlock().getLocation();
 			
-			if (sm.getInfo(loc)==null){
+			if (sm.isInventory(loc)==false){
+				System.out.print("finally?");
 				return; // for preexisting enderchests.
 			}
 			Inventory inv=sm.getInfo(loc).inv;
@@ -185,18 +183,22 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 				loc.getWorld().dropItemNaturally(loc, inv.getItem(i)); //drops items to where the chest was.
 				}
 				List<Player> player= li.getPlayerList(loc);
+				if (player==null){
+					player = new ArrayList<Player>();
+					player.add(event.getPlayer());
+				}
 				for (Player one: player){
 				li.removePlayer(loc, one);
 				one.closeInventory();
 				one.updateInventory(); // Closes the inventory of everyone looking at the chest.
 				}
+				
 				Bukkit.getScheduler().runTask(plugin, new Runnable(){
 					@Override
 					public void run(){
 					sm.deleteInventory(loc);// Removes the inventory and drops contents onto the floor.
 					}
 				});
-			 
 		}
 	}
 

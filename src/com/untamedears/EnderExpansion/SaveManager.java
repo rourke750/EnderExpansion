@@ -164,4 +164,8 @@ public class SaveManager {
 		  }
 	  }
 
+	  public Boolean isInventory(Location loc){
+		  if (ptoinfo_.get(loc)==null) return false;
+		  return true;
+	  }
 }
