@@ -34,6 +34,11 @@ import org.bukkit.material.EnderChest;
 import org.bukkit.event.block.BlockBreakEvent;
 
 import com.untamedears.EnderExpansion.SaveManager.Info;
+import com.untamedears.citadel.Citadel;
+import com.untamedears.citadel.access.AccessDelegate;
+import com.untamedears.citadel.entity.Faction;
+import com.untamedears.citadel.entity.IReinforcement;
+import com.untamedears.citadel.entity.PlayerReinforcement;
 
 public class EnderListener implements Listener{
 	private LoadInventories li;
@@ -78,6 +83,15 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 				break;
 			}
 			final Info info=sm.getInfo(loc);
+			
+			if (Bukkit.getPluginManager().isPluginEnabled("citadel")){
+			IReinforcement rein = AccessDelegate.getDelegate(block).getReinforcement();
+			if (!(rein instanceof PlayerReinforcement)) return;
+			PlayerReinforcement prein = (PlayerReinforcement)rein;
+			boolean hasAccess = prein.isAccessible(player);
+			if (hasAccess != true) return;
+			}
+			
 			if (open == true){
 			li.setBlock(player, loc); // Allows me to find the block in certain methods that dont allow me.
 			player.openInventory(inv);
