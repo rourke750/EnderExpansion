@@ -57,7 +57,6 @@ public class SaveManager {
 	  }
 
 	  public Inventory loadInventory(Location loc) {
-		synchronized(lo) {
 	    File inventorySave = new File(inventoryDir_, String.format("inv_%s.dat", loc.toString()));
 	    if (!inventorySave.exists()) {
 	      return null;
@@ -89,10 +88,8 @@ public class SaveManager {
 	    }
 	    return inv;
 	  }
-	  }
 	  
 	public void saveInventory(Location loc, Info info) {
-		synchronized(lo) {
 	    Inventory inv = info.inv;
 	    if (!(inv instanceof CraftInventoryCustom)) {
 	      return;
@@ -127,9 +124,9 @@ public class SaveManager {
 	      return;
 	    }
 	  }
-	}
 
 	  public Info getInfo(Location loc) {
+		if (isDeleted());
 	    Info info = ptoinfo_.get(loc);
 	    boolean newinfo = false;
 	    if (info == null) {
@@ -149,7 +146,7 @@ public class SaveManager {
 	    if (newinfo) {
 	      ptoinfo_.put(loc, info);
 	      invtoinfo_.put(info.iinv, info);
-	    }
+	    }		
 	    return info;
 	  }
 	  public void setFile(File file){
@@ -174,4 +171,11 @@ public class SaveManager {
 		  if (ptoinfo_.get(loc)==null) return false;
 		  return true;
 	  }
-}
+	  
+	  public Boolean isDeleted(){
+		  synchronized(lo) {
+			  return true;
+		  }
+		  }
+	  }
+
