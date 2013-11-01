@@ -98,9 +98,9 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 			player.openInventory(inv);
 			player.updateInventory();  // refreshes player inventory.
 			li.addPlayerList(loc, player);
-			Bukkit.getScheduler().runTask(plugin, new Runnable(){
-				@Override
-				public void run(){
+			Bukkit.getScheduler().runTask(plugin, new Runnable(){  // bukkit scheduler is needed
+				@Override // so give the method time to move the items so the inventory ir 
+				public void run(){ // properly saved.
 				sm.saveInventory(loc, info);
 				}
 			});
@@ -207,13 +207,7 @@ public EnderListener(LoadInventories lin, SaveManager save, Enderplugin ep){
 				one.updateInventory(); // Closes the inventory of everyone looking at the chest.
 				
 				}
-				
-				Bukkit.getScheduler().runTask(plugin, new Runnable(){
-					@Override
-					public void run(){
 					sm.deleteInventory(loc);// Removes the inventory and drops contents onto the floor.
-					}
-				});
 		}
 	}
 
