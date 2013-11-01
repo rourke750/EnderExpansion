@@ -36,6 +36,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class SaveManager {
+	private static final Object lo = new Object();
 	private LoadInventories li;
 	public SaveManager(LoadInventories load){
 		li=load;
@@ -56,6 +57,7 @@ public class SaveManager {
 	  }
 
 	  public Inventory loadInventory(Location loc) {
+		synchronized(lo) {
 	    File inventorySave = new File(inventoryDir_, String.format("inv_%s.dat", loc.toString()));
 	    if (!inventorySave.exists()) {
 	      return null;
@@ -87,8 +89,10 @@ public class SaveManager {
 	    }
 	    return inv;
 	  }
+	  }
 	  
 	public void saveInventory(Location loc, Info info) {
+		synchronized(lo) {
 	    Inventory inv = info.inv;
 	    if (!(inv instanceof CraftInventoryCustom)) {
 	      return;
@@ -123,6 +127,7 @@ public class SaveManager {
 	      return;
 	    }
 	  }
+	}
 
 	  public Info getInfo(Location loc) {
 	    Info info = ptoinfo_.get(loc);
@@ -151,12 +156,13 @@ public class SaveManager {
 		  inventoryDir_=file;
 	  }
 	  public void deleteInventory(Location loc){
+		  synchronized(lo) {
 		  File inventorySave = new File(inventoryDir_, String.format("inv_%s.dat", loc));
 		    if (inventorySave.exists()) {
 		      inventorySave.delete();
 		      ptoinfo_.remove(loc);
 		    }
-		    
+	  }
 	  }
 	  public void forceSave(){
 		  for (Info in:ptoinfo_.values()){
